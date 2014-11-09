@@ -1,15 +1,18 @@
 %{
 #include <stdio.h>
-    void yyerror(char *);
-    int yylex(void);
-    int yydebug = 0;
+void yyerror(char *);
+int yylex(void);
+int yydebug = 0;
+extern int yyparse();
+extern FILE *yyin;
 %}
+
 %debug
 %token INTEGER
 %token MINUS PLUS MUL DIV LESS GREATER EQUAL LESS_EQUAL GREATER_EQUAL NOT_EQUAL
 %token TRUE FALSE AND OR NOR NOT
 
-
+%left '?' ':'
 %left AND NOR OR
 %left LESS GREATER LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL
 %left PLUS MINUS
@@ -28,7 +31,8 @@ statement:
     ;
 
 numexpr:
-    INTEGER
+    logicexpr "?" numexpr ":" numexpr   { $$ = $1 ? $3 : $5; }
+    | INTEGER
     | MINUS numexpr { $$ = -$2; }
     | numexpr PLUS numexpr { $$ = $1 + $3; }
     | numexpr MINUS numexpr { $$ = $1 - $3; }
@@ -60,6 +64,13 @@ void yyerror(char *s) {
     fprintf(stderr, "%s\n", s);
 }
 
-int main(void) {
+int main( int argc, char **argv )
+{
+    ++argv, --argc;  /* skip over program name */
+    if ( argc > 0 )
+         yyin = fopen( argv[0], "r" );
+    else
+         yyin = stdin;
+
     yyparse();
-}
+ }
