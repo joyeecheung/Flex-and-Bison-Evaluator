@@ -29,8 +29,10 @@ DIGIT [0-9]
 "or"        { return OR; }
 "nor"       { return NOR; }
 "not"       { return NOT; }
+"?"          { return *yytext; }
+":"          { return *yytext; }
 
-[\?\:()\n] { return *yytext; }
+[()\n] { return *yytext; }
 
 [ \t] ; /* skip whitespace */
 
