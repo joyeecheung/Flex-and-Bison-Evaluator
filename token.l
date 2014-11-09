@@ -23,8 +23,14 @@ DIGIT [0-9]
 ">="        { return GREATER_EQUAL; }
 "=="        { return EQUAL; }
 "!="        { return NOT_EQUAL; }
+"True"      { return TRUE; }
+"False"     { return FALSE; }
+"and"       { return AND; }
+"or"        { return OR; }
+"nor"       { return NOR; }
+"not"       { return NOT; }
 
-[()\n] { return *yytext; }
+[\?\:()\n] { return *yytext; }
 
 [ \t] ; /* skip whitespace */
 
