@@ -2,12 +2,15 @@
 #include <stdio.h>
     void yyerror(char *);
     int yylex(void);
-    int sym[26];
+    int yydebug = 0;
 %}
+%debug
+%token INTEGER
+%token MINUS PLUS MUL DIV LESS GREATER EQUAL LESS_EQUAL GREATER_EQUAL NOT_EQUAL
 
-%token INTEGER VARIABLE
-%left '+' '-'
-%left '*' '/'
+%left LESS GREATER EQUAL LESS_EQUAL GREATER_EQUAL NOT_EQUAL
+%left PLUS MINUS
+%left MUL DIV
 %%
 
 program:
@@ -16,20 +19,30 @@ program:
     ;
 
 statement:
-    expression { printf("%d\n", $1); }
-    | VARIABLE '=' expression { sym[$1] = $3; }
+    logicexpr { printf("%s\n", $1 == 0 ? "False" : "True"); }
+    | numexpr { printf("%d\n", $1); }
     ;
 
-expression:
+numexpr:
     INTEGER
-    | VARIABLE { $$ = sym[$1]; }
-    | '-' expression { $$ = -$2; }
-    | expression '+' expression { $$ = $1 + $3; }
-    | expression '-' expression { $$ = $1 - $3; }
-    | expression '*' expression { $$ = $1 * $3; }
-    | expression '/' expression { $$ = $1 / $3; }
-    | '(' expression ')' { $$ = $2; }
+    | MINUS numexpr { $$ = -$2; }
+    | numexpr PLUS numexpr { $$ = $1 + $3; }
+    | numexpr MINUS numexpr { $$ = $1 - $3; }
+    | numexpr MUL numexpr { $$ = $1 * $3; }
+    | numexpr DIV numexpr { $$ = $1 / $3; }
+    | '(' numexpr ')' { $$ = $2; }
     ;
+
+logicexpr:
+    numexpr LESS numexpr { $$ = $1 < $3; }
+    | numexpr GREATER numexpr { $$ = $1 > $3; }
+    | numexpr EQUAL numexpr { $$ = $1 == $3; }
+    | numexpr LESS_EQUAL numexpr { $$ = $1 <= $3; }
+    | numexpr GREATER_EQUAL numexpr { $$ = $1 >= $3; }
+    | numexpr NOT_EQUAL numexpr { $$ = $1 != $3; }
+    | '(' logicexpr ')' { $$ = $2; }
+    ;
+
 
 %%
 
