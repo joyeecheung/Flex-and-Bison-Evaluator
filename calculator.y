@@ -10,49 +10,70 @@ extern FILE *yyin;
 %debug
 %token INTEGER
 %token MINUS PLUS MUL DIV LESS GREATER EQUAL LESS_EQUAL GREATER_EQUAL NOT_EQUAL
-%token TRUE FALSE AND OR NOR NOT
+%token TRUE FALSE AND OR XOR NOT
+%token QUESTION COLON LEFT_PAREN RIGHT_PAREN ENDL
+%type <d> expr
+%type <d> ternary
+%type <i> INTEGER
 
-%nonassoc '?' ':'
-%left AND NOR OR
+%nonassoc QUESTION COLON
+
+%left AND XOR OR
 %left LESS GREATER LESS_EQUAL GREATER_EQUAL EQUAL NOT_EQUAL
 %left PLUS MINUS
 %left MUL DIV
 %left NOT
+
+%code requires {
+#define NUM 1
+#define BOOL 2
+
+struct Data {
+    int val;
+    int type;
+};
+}
+
+%union {
+    int i;
+    struct Data d;
+}
+
 %%
 
-program: program logicexpr '\n' { printf("%s\n", $2 == 0 ? "False" : "True"); }
-        | program numexpr '\n'  { printf("%d\n", $2); }
+program: program expr ENDL  { if ($2.type == NUM)
+                                printf("%d\n", $2.val);
+                              else
+                                printf("%s\n", $2.val == 1 ? "True" : "False"); }
         | /* NULL */
         ;
 
-logicexpr:
-        TRUE  { $$ = 1; }
-        | FALSE { $$ = 0; }
-        | NOT logicexpr  { $$ = !$2; }
-        | logicexpr AND logicexpr  { $$ = $1 && $3; }
-        | logicexpr OR logicexpr  { $$ = $1 || $3; }
-        | logicexpr NOR logicexpr  { $$ = !($1 || $3); }
-        | numexpr LESS numexpr { $$ = $1 < $3; }
-        | numexpr GREATER numexpr { $$ = $1 > $3; }
-        | numexpr EQUAL numexpr { $$ = $1 == $3; }
-        | numexpr LESS_EQUAL numexpr { $$ = $1 <= $3; }
-        | numexpr GREATER_EQUAL numexpr { $$ = $1 >= $3; }
-        | numexpr NOT_EQUAL numexpr { $$ = $1 != $3; }
-        | '(' logicexpr ')' { $$ = $2; }
-        ;
 
-numexpr: INTEGER
-        | expression
-        | MINUS numexpr { $$ = -$2; }
-        | numexpr PLUS numexpr { $$ = $1 + $3; }
-        | numexpr MINUS numexpr { $$ = $1 - $3; }
-        | numexpr MUL numexpr { $$ = $1 * $3; }
-        | numexpr DIV numexpr { $$ = $1 / $3; }
-        | '(' numexpr ')' { $$ = $2; }
-        ;
+expr: TRUE  { $$.type = BOOL; $$.val = 1; }
+    | FALSE { $$.type = BOOL; $$.val = 0; }
+    | INTEGER { $$.type = NUM; $$.val = $1; }
+    | ternary { $$.type = $1.type; $$.val = $1.val; }
+    | NOT expr  { $$.type = BOOL; $$.val = !$2.val; }
+    | expr AND expr  { $$.type = BOOL; $$.val = $1.val && $3.val; }
+    | expr OR expr  { $$.type = BOOL; $$.val = $1.val || $3.val; }
+    | expr XOR expr  { $$.type = BOOL; $$.val = $1.val ^ $3.val; }
+    | expr LESS expr { $$.type = BOOL; $$.val = $1.val < $3.val; }
+    | expr GREATER expr { $$.type = BOOL; $$.val = $1.val > $3.val; }
+    | expr EQUAL expr { $$.type = BOOL; $$.val = $1.val == $3.val; }
+    | expr LESS_EQUAL expr { $$.type = BOOL; $$.val = $1.val <= $3.val; }
+    | expr GREATER_EQUAL expr { $$.type = BOOL; $$.val = $1.val >= $3.val; }
+    | expr NOT_EQUAL expr { $$.type = BOOL; $$.val = $1.val != $3.val; }
+    | MINUS expr { $$.type = NUM; $$.val = -$2.val; }
+    | expr PLUS expr { $$.type = NUM; $$.val = $1.val + $3.val; }
+    | expr MINUS expr { $$.type = NUM; $$.val = $1.val - $3.val; }
+    | expr MUL expr { $$.type = NUM; $$.val = $1.val * $3.val; }
+    | expr DIV expr { $$.type = NUM; $$.val = $1.val / $3.val; }
+    | LEFT_PAREN expr RIGHT_PAREN { $$.type = $2.type; $$.val = $2.val; }
+    ;
 
-expression: logicexpr '?' numexpr ':' numexpr   { $$ = $1 ? $3 : $5; }
-            ;
+ternary: expr QUESTION expr COLON expr   { $$.val = $1.val ? $3.val : $5.val;
+                                           $$.type = $1.val ? $3.type : $5.type;}
+        ;
 
 %%
 

@@ -2,6 +2,8 @@
 #include "y.tab.h"
 #include <stdlib.h>
 void yyerror(char *);
+#define NUM 1
+#define BOOL 2
 %}
 
 DIGIT [0-9]
@@ -9,7 +11,8 @@ DIGIT [0-9]
 %%
 
 {DIGIT}+ {
-    yylval = atoi(yytext);
+    yylval.d.val = atoi(yytext);
+    yylval.d.type = NUM;
     return INTEGER;
 }
 
@@ -23,16 +26,17 @@ DIGIT [0-9]
 ">="        { return GREATER_EQUAL; }
 "=="        { return EQUAL; }
 "!="        { return NOT_EQUAL; }
-"True"      { return TRUE; }
-"False"     { return FALSE; }
+"True"      { yylval.d.type = BOOL; return TRUE; }
+"False"     { yylval.d.type = BOOL; return FALSE; }
 "and"       { return AND; }
 "or"        { return OR; }
-"nor"       { return NOR; }
+"xor"       { return XOR; }
 "not"       { return NOT; }
-"?"          { return *yytext; }
-":"          { return *yytext; }
-
-[()\n] { return *yytext; }
+"?"          { return QUESTION; }
+":"          { return COLON; }
+"("          { return LEFT_PAREN; }
+")"          { return RIGHT_PAREN; }
+"\n"          { return ENDL; }
 
 [ \t] ; /* skip whitespace */
 

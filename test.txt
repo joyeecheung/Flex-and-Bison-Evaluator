@@ -2,6 +2,7 @@
 3*5
 5/2
 3-1
+1--2
 1+5/2
 3*4+1
 (4+2)/3
@@ -16,8 +17,11 @@ True and False
 False and False
 False or True
 True or True
-False or False
+False or (False)
 not True
+False xor (not True)
 not True and True
 False or not False
-False nor not True
+(1+2)>3-1?True:1
+1+2>(3-1)?1:False
+-1+2>3-1?1:2
