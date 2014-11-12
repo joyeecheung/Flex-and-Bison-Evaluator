@@ -1,9 +1,8 @@
 %{
 #include "y.tab.h"
 #include <stdlib.h>
+
 void yyerror(char *);
-#define NUM 1
-#define BOOL 2
 %}
 
 DIGIT [0-9]

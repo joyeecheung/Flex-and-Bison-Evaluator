@@ -1,8 +1,10 @@
 %{
 #include <stdio.h>
+
 void yyerror(char *);
 int yylex(void);
 int yydebug = 0;
+
 extern int yyparse();
 extern FILE *yyin;
 %}
@@ -12,6 +14,7 @@ extern FILE *yyin;
 %token MINUS PLUS MUL DIV LESS GREATER EQUAL LESS_EQUAL GREATER_EQUAL NOT_EQUAL
 %token TRUE FALSE AND OR XOR NOT
 %token QUESTION COLON LEFT_PAREN RIGHT_PAREN ENDL
+
 %type <d> expr
 %type <d> ternary
 %type <i> INTEGER
@@ -41,10 +44,11 @@ struct Data {
 
 %%
 
-program: program expr ENDL  { if ($2.type == NUM)
-                                printf("%d\n", $2.val);
+program: program expr ENDL  { if ($2.type == BOOL)
+                                  printf("%s\n", $2.val == 1 ? "True" : "False");
                               else
-                                printf("%s\n", $2.val == 1 ? "True" : "False"); }
+                                  printf("%d\n", $2.val);
+                            }
         | /* NULL */
         ;
 
@@ -81,13 +85,14 @@ void yyerror(char *s) {
     fprintf(stderr, "%s\n", s);
 }
 
-int main( int argc, char **argv )
-{
+int main(int argc, char **argv) {
     ++argv, --argc;  /* skip over program name */
-    if ( argc > 0 )
-         yyin = fopen( argv[0], "r" );
+    if (argc > 0)
+        yyin = fopen( argv[0], "r" );
     else
-         yyin = stdin;
+        yyin = stdin;
 
     yyparse();
+
+    return 0;
  }

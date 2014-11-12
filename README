@@ -1,4 +1,19 @@
-### About
+# A simple Evaluator
+
+Reads input from stdin or files, print the results to stdout.
+Supports arithmetic and logical operations. Ternary operator is available too.
+
+# Usage
+
+    $ ./make.sh
+    $ ./demo  # interactive mode, reads input from stdin
+    $ ./demo test.txt  # reads input from test.txt
+
+## Environment
+
+Developed under Ubuntu 12.04 LTS, with GNU Bison 2.5 and flex 2.5.35
+
+## About
 * Author: Qiuyi Zhang
 * Time: Nov. 2014
 * Github Repository: [https://github.com/joyeecheung/Flex-and-Bison-Evaluator](https://github.com/joyeecheung/Flex-and-Bison-Evaluator)
