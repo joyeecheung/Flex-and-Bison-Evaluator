@@ -1,8 +1,14 @@
 3
+False
 15
 2
 2
 3
+0
+-3
+3
+-2
+-2
 3
 13
 2
@@ -25,3 +31,8 @@ True
 True
 1
 2
+False
+5
+False
+-2
+True
