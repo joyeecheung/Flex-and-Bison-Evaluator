@@ -49,6 +49,7 @@ program: program expr ENDL  { if ($2.type == BOOL)
                               else
                                   printf("%d\n", $2.val);
                             }
+        | program error ENDL { /* skip until newline */}
         | /* NULL */
         ;
 
